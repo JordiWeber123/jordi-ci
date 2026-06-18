@@ -1,0 +1,5 @@
+stages: 
+  - name: build
+    run: npm install
+  - name: test1
+    run: npm run dev
