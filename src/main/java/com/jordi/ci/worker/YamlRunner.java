@@ -1,4 +1,4 @@
-package com.jordi.ci;
+package com.jordi.ci.worker;
 
 import java.io.File;
 import java.io.IOException;
