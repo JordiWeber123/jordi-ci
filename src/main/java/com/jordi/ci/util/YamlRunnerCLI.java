@@ -10,13 +10,18 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.jordi.ci.YamlRunner;
 import com.jordi.ci.error.PipelineLoadException;
+import com.jordi.ci.worker.YamlRunner;
 
 //TODO: upgrade CLI util to ApplicationRunner
 @Component
 @Profile("cli")
 public class YamlRunnerCLI implements CommandLineRunner{
+    private final YamlRunner yamlRunner;
+
+    public YamlRunnerCLI(YamlRunner yamlRunner) {
+        this.yamlRunner = yamlRunner;
+    }
 
     /*
      * Small local class to implement flush-after-write, because default Java doesn't have that behavior 
@@ -53,7 +58,7 @@ public class YamlRunnerCLI implements CommandLineRunner{
             try {
                 File yamlFile = new File(args[args.length -1]);
                 System.out.println("New stream wiring");
-                YamlRunner.runYaml(yamlFile, new FlushWriter(new OutputStreamWriter(System.out)));
+                yamlRunner.runYaml(yamlFile, new FlushWriter(new OutputStreamWriter(System.out)));
             } catch (FileNotFoundException e) {
                 System.out.println("File not found: " + args[args.length -1]);
             }catch (PipelineLoadException e) {
