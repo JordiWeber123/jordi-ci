@@ -12,16 +12,20 @@ import org.springframework.stereotype.Component;
 
 import com.jordi.ci.error.PipelineLoadException;
 import com.jordi.ci.worker.LocalTaskRunner;
-import com.jordi.ci.worker.YamlRunner;
+import com.jordi.ci.worker.PipelineRunner;
+import com.jordi.ci.worker.YamlParser;
+import com.jordi.ci.worker.pipeline.CIScript;
 
 //TODO: upgrade CLI util to ApplicationRunner
 @Component
 @Profile("cli")
 public class YamlRunnerCLI implements CommandLineRunner{
-    private final YamlRunner yamlRunner;
+    private final PipelineRunner runner;
+    private final YamlParser parser;
 
-    public YamlRunnerCLI(YamlRunner yamlRunner) {
-        this.yamlRunner = yamlRunner;
+    public YamlRunnerCLI(PipelineRunner runner, YamlParser parser) {
+        this.runner = runner;
+        this.parser = parser;
     }
 
     /*
@@ -58,8 +62,8 @@ public class YamlRunnerCLI implements CommandLineRunner{
         if (args.length > 1){
             try {
                 File yamlFile = new File(args[args.length -1]);
-                System.out.println("New stream wiring");
-                yamlRunner.runYaml(yamlFile, new LocalTaskRunner(), new FlushWriter(new OutputStreamWriter(System.out)));
+                CIScript script = parser.parseYaml(yamlFile);
+                runner.run(script, new LocalTaskRunner(), new FlushWriter(new OutputStreamWriter(System.out)));
             } catch (FileNotFoundException e) {
                 System.out.println("File not found: " + args[args.length -1]);
             }catch (PipelineLoadException e) {
