@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.jordi.ci.error.PipelineLoadException;
+import com.jordi.ci.worker.LocalTaskRunner;
 import com.jordi.ci.worker.YamlRunner;
 
 //TODO: upgrade CLI util to ApplicationRunner
@@ -58,7 +59,7 @@ public class YamlRunnerCLI implements CommandLineRunner{
             try {
                 File yamlFile = new File(args[args.length -1]);
                 System.out.println("New stream wiring");
-                yamlRunner.runYaml(yamlFile, new FlushWriter(new OutputStreamWriter(System.out)));
+                yamlRunner.runYaml(yamlFile, new LocalTaskRunner(), new FlushWriter(new OutputStreamWriter(System.out)));
             } catch (FileNotFoundException e) {
                 System.out.println("File not found: " + args[args.length -1]);
             }catch (PipelineLoadException e) {
