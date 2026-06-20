@@ -12,5 +12,8 @@ public interface CITaskRunner {
      * @throws IOException
      */
     //TODO: define well which errors I'm throwing and where
+    //TODO: I already made ProcessExcecutionException, that's a good start
     public boolean runTask(CITask task) throws Exception;
+    //TODO: consider a runTask that accepts a writer for more precise error reporting
+
 }
