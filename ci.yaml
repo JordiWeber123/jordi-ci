@@ -1,0 +1,26 @@
+stages:
+  - name: setup
+    tasks:
+      - name: print-greeting
+        command: echo "Hello from the setup stage"
+      - name: show-date
+        command: date
+ 
+  - name: inspect
+    tasks:
+      - name: current-directory
+        command: pwd
+      - name: current-user
+        command: whoami
+      - name: long-tasks
+        command: sleep 10
+      - name: list-files
+        command: ls -la
+      
+  - name: teardown
+    tasks:
+      - name: count-files
+        command: ls -1 | wc -l
+      - name: done-message
+        command: echo "All stages complete"
+ 
