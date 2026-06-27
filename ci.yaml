@@ -12,8 +12,7 @@ stages:
         command: pwd
       - name: current-user
         command: whoami
-      - name: long-tasks
-        command: sleep 10
+
       - name: list-files
         command: ls -la
       
