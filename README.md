@@ -33,8 +33,8 @@ The CI pipeline writes the output to a provided writer
 
 # Install guide
 
-Clone this repo using SSH: ```git clone git@github.com:JordiWeber123/jordi-ci.git``` or HTTPS ```git clone https://github.com/JordiWeber123/jordi-ci.git```
+Clone this repo using SSH: ```git clone git@github.com:JordiWeber123/jordi-ci.git``` or HTTPS: ```git clone https://github.com/JordiWeber123/jordi-ci.git```
 
-For compiling and running the CI, you will need Maven to manage dependencies, then run with [Work in Progress]
+For compiling and running the CI, you will need Maven and the JDK to compile it, then run with [Work in Progress]
 
-If you prefer running from a .jar file, you may [Work in Progress]
+If you prefer running from a .jar file, you may downlad the Fat JAR. This requires only the Java Runtime Environment (JRE) [Work in Progress]
