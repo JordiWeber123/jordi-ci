@@ -14,35 +14,33 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
+import com.jordi.ci.queue.JobInfo;
+import com.jordi.ci.queue.QueueService;
 import com.jordi.ci.worker.pipeline.CIScript;
 
 @Component
-public class CIWorker {
+public class CIWorker implements Runnable{
     private static final int MAX_MEM_MB = 512;
     private static final int CPU_NUM = 1;
     private static final int MAX_PIDS = 256;
+    private static final long POLL_MS = 1000;
     private static final String CONFIG_FILE = "ci.yaml";
+    
     private final PipelineRunner runner;
     private final YamlParser parser;
+    private final QueueService queueService;
     
-    public CIWorker(PipelineRunner runner, YamlParser yamlParser) {
+    public CIWorker(PipelineRunner runner, YamlParser yamlParser, QueueService queueService) {
         this.runner = runner;
         this.parser = yamlParser;
+        this.queueService = queueService;
     }
     //TODO: consider if passing down the writer is the best option here
-    public void runCI(Writer out) throws IOException, InterruptedException, Exception{
-        //TODO:remove hardcoded job info
-        JobInfo jobInfo = new JobInfo(1L, 
-            "https://github.com/JordiWeber123/jordi-ci.git",
-            "jordi-ci",
-            "a52a199da13feb86b58215eacd425fc0be957651",
-            "queued",
-            "28609787fa5e"
-        );
+    public void runCI(Writer out, JobInfo job) throws IOException, InterruptedException, Exception{        
         //TODO: remove hardcoded image
         String image = "alpine";
 
-        String workspacePath = "tmp/job_" + jobInfo.containerId() + "/";
+        String workspacePath = "tmp/job_" + job.containerId() + "/";
         //Create workspace
         File workSpaceDir = new File(workspacePath);
         if(!workSpaceDir.exists()){
@@ -51,7 +49,7 @@ public class CIWorker {
             }
         } 
         //clone repo
-        Process p = new ProcessBuilder("git", "clone", jobInfo.repoLink())
+        Process p = new ProcessBuilder("git", "clone", job.repoLink())
                 .directory(workSpaceDir)
                 .redirectErrorStream(true)
                 .start();
@@ -59,9 +57,9 @@ public class CIWorker {
         if (code != 0) {
             throw new IOException("Failed to git clone, exit code: " + code);
         }
-        String repoPath = workspacePath + jobInfo.repoName() + "/";
+        String repoPath = workspacePath + job.repoName() + "/";
         //spin up docker
-        String containerName = "build-" + jobInfo.containerId();
+        String containerName = "build-" + job.containerId();
 
         DockerRunner taskRunner;
         try {
@@ -111,5 +109,43 @@ public class CIWorker {
         } catch (IOException x) {
             System.err.println(x); 
         } */
+    }
+
+    public void run(){
+        JobInfo hardCodedJob = new JobInfo(1L, 
+            "https://github.com/JordiWeber123/jordi-ci.git",
+            "jordi-ci",
+            "a52a199da13feb86b58215eacd425fc0be957651",
+            "queued",
+            "28609787fa5e"
+        );
+        while(true) {
+            JobInfo job;
+            //TODO: cleanup exceptions
+            try {
+                job = queueService.claimJob();
+            } catch(RuntimeException e) {
+                try {
+                    Thread.sleep(POLL_MS); 
+                } catch (InterruptedException e2) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                continue;
+            }
+            
+            StringWriter out = new StringWriter();
+            //TODO: redo exception handling
+            try {
+                runCI(out, job);
+            } catch(IOException e) {
+                return;
+            } catch(InterruptedException e) {
+                return;
+            } catch(Exception e) {
+                return;
+            }
+            System.out.println(out.toString());
+        }
     }
 }
