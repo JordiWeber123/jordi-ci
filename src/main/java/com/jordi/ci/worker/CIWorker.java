@@ -98,27 +98,9 @@ public class CIWorker implements Runnable{
                 .peek(System.out::println)
                 .forEach(File::delete);
         }
-        /*
-        try {
-            Files.delete(Path.of(workSpacePath));
-            System.out.println();
-        } catch (NoSuchFileException x) {
-            System.err.format("%s: no such" + " file or directory%n", workSpacePath);
-        } catch (DirectoryNotEmptyException x) {
-            System.err.println("Not empty directory");
-        } catch (IOException x) {
-            System.err.println(x); 
-        } */
     }
 
     public void run(){
-        JobInfo hardCodedJob = new JobInfo(1L, 
-            "https://github.com/JordiWeber123/jordi-ci.git",
-            "jordi-ci",
-            "a52a199da13feb86b58215eacd425fc0be957651",
-            "queued",
-            "28609787fa5e"
-        );
         while(true) {
             JobInfo job;
             //TODO: cleanup exceptions
